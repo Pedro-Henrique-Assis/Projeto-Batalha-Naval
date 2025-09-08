@@ -5,6 +5,7 @@ import model.embarcacoes.Embarcacao;
 import model.enums.Direcao;
 import model.enums.Orientacao;
 import model.enums.TipoTiro;
+import java.util.regex.Pattern;
 
 import java.util.*;
 
@@ -64,23 +65,36 @@ public class ConsoleUtils {
         while (true) {
             System.out.println("Escolha uma embarcação para atirar:");
             for (int i = 0; i < embarcacoesDisponiveis.size(); i++) {
-                System.out.println((i + 1) + " - " + embarcacoesDisponiveis.get(i).getNome());
+                Embarcacao e = embarcacoesDisponiveis.get(i);
+
+                String nome = e.getNome();
+                if (e.estaAfundada()) {
+                    nome = utils.Ansi.red(nome) + " (AFUNDADA)";
+                }
+
+                System.out.println((i + 1) + " - " + nome);
             }
             System.out.print("> ");
 
             try {
                 int escolha = scanner.nextInt();
                 if (escolha > 0 && escolha <= embarcacoesDisponiveis.size()) {
-                    return embarcacoesDisponiveis.get(escolha - 1);
+                    Embarcacao escolhida = embarcacoesDisponiveis.get(escolha - 1);
+                    if (escolhida.estaAfundada()) {
+                        System.out.println("Essa embarcação está afundada. Escolha outra.");
+                        continue;
+                    }
+                    return escolhida;
                 } else {
                     System.out.println("Opção inválida. Tente novamente.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida. Por favor, digite um número.");
-                scanner.next(); // Limpa o buffer
+                scanner.next();
             }
         }
     }
+
 
     /**
      * Permite ao usuário escolher um tipo de tiro de um conjunto de opções.
@@ -105,7 +119,7 @@ public class ConsoleUtils {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida. Por favor, digite um número.");
-                scanner.next(); // Limpa o buffer
+                scanner.next(); //
             }
         }
     }
@@ -139,4 +153,58 @@ public class ConsoleUtils {
             }
         }
     }
+
+    public static void mostrarPainelEmbarcacoes(List<Embarcacao> minhas, List<Embarcacao> doAdversario) {
+        List<String[]> esquerda = new ArrayList<>();
+        esquerda.add(new String[]{Ansi.bold("Minhas Embarcações"), Ansi.bold("Status")});
+        for (Embarcacao e : minhas) {
+            String nome   = e.estaAfundada() ? Ansi.red(e.getNome())   : Ansi.green(e.getNome());
+            String status = e.estaAfundada() ? Ansi.red("AFUNDADA")     : Ansi.green("ATIVA");
+            esquerda.add(new String[]{nome, status});
+        }
+
+        List<String[]> direita = new ArrayList<>();
+        direita.add(new String[]{Ansi.bold("Embarcações do Adversário"), Ansi.bold("Status")});
+        for (Embarcacao e : doAdversario) {
+            String nome   = e.estaAfundada() ? Ansi.red(e.getNome())    : Ansi.green(e.getNome());
+            String status = e.estaAfundada() ? Ansi.red("AFUNDADA")      : Ansi.green("RESTANTE");
+            direita.add(new String[]{nome, status});
+        }
+
+        int L1 = 22, L2 = 10, R1 = 26, R2 = 10; // larguras
+        int linhas = Math.max(esquerda.size(), direita.size());
+
+        System.out.println();
+        System.out.println(Ansi.bold("=== Situação das Frotas ==="));
+
+        for (int i = 0; i < linhas; i++) {
+            String[] esq = i < esquerda.size() ? esquerda.get(i) : new String[]{"", ""};
+            String[] dir = i < direita.size() ? direita.get(i) : new String[]{"", ""};
+
+            String linha =
+                    padAnsi(esq[0], L1) + " " + padAnsi(esq[1], L2) + "  |  " +
+                            padAnsi(dir[0], R1) + " " + padAnsi(dir[1], R2);
+
+            System.out.println(linha);
+        }
+        System.out.println();
+    }
+
+    // ===== helpers que tratam ANSI =====
+    private static final Pattern ANSI_PATTERN = Pattern.compile("\\u001B\\[[;\\d]*m");
+
+    private static String stripAnsi(String s) {
+        return ANSI_PATTERN.matcher(s == null ? "" : s).replaceAll("");
+    }
+
+    private static String padAnsi(String s, int width) {
+        if (s == null) s = "";
+        int visible = stripAnsi(s).length();
+        StringBuilder out = new StringBuilder(s);
+        while (visible < width) { out.append(' '); visible++; }
+        return out.toString();
+    }
+
+
+
 }

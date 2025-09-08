@@ -62,13 +62,13 @@ public class JogadorHumano extends Jogador {
     public void realizarJogada(Jogador adversario) {
         System.out.println("\nSua vez de atirar, " + this.nome + "!");
 
-        // Filtrar para obter apenas embarcações que não afundaram
-        List<Embarcacao> embarcacoesAtivas = this.tabuleiro.getEmbarcacoes().stream()
-                .filter(e -> !e.estaAfundada())
-                .collect(Collectors.toList());
+        ConsoleUtils.mostrarPainelEmbarcacoes(
+                this.tabuleiro.getEmbarcacoes(),                // minhas (todas, para pintar as afundadas)
+                adversario.getTabuleiro().getEmbarcacoes()      // adversário (vamos filtrar restantes no util)
+        );
 
-        // Deixar o jogador escolher a embarcação
-        Embarcacao embarcacaoEscolhida = ConsoleUtils.escolherEmbarcacao(embarcacoesAtivas);
+        List<Embarcacao> todas = this.tabuleiro.getEmbarcacoes();
+        Embarcacao embarcacaoEscolhida = ConsoleUtils.escolherEmbarcacao(todas);
 
         // Deixar o jogador escolher o tipo de tiro
         Set<TipoTiro> tirosDisponiveis = embarcacaoEscolhida.getTirosDisponiveis();
@@ -78,14 +78,16 @@ public class JogadorHumano extends Jogador {
         System.out.println("Escolha a coordenada alvo.");
         Coordenada alvo = ConsoleUtils.lerCoordenada(adversario.getTabuleiro().getTamanho());
 
-        // Calcular as coordenadas afetadas
-        List<Coordenada> coordenadasAfetadas = TiroUtils.getCoordenadasAfetadas(alvo, tipoTiroEscolhido);
+        // Calcular as coordenadas afetadas (CORRIGIDO)
+        List<Coordenada> coordenadasAfetadas;
+
         if (tipoTiroEscolhido == TipoTiro.DUPLO) {
-            Direcao direcao = ConsoleUtils.lerDirecaoTiroDuplo();
+            Direcao direcao = ConsoleUtils.lerDirecaoTiroDuplo(); // peça a direção
             coordenadasAfetadas = TiroUtils.getCoordenadasAfetadas(alvo, tipoTiroEscolhido, direcao);
         } else {
             coordenadasAfetadas = TiroUtils.getCoordenadasAfetadas(alvo, tipoTiroEscolhido);
         }
+
 
         // Processar cada tiro
         System.out.println("\n--- RESULTADO DOS TIROS ---");
