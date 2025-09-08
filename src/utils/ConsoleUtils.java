@@ -90,7 +90,7 @@ public class ConsoleUtils {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida. Por favor, digite um número.");
-                scanner.next();
+                scanner.next(); // Limpa o buffer
             }
         }
     }
@@ -119,7 +119,7 @@ public class ConsoleUtils {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida. Por favor, digite um número.");
-                scanner.next(); //
+                scanner.next(); //Limpa o buffer
             }
         }
     }
@@ -153,7 +153,13 @@ public class ConsoleUtils {
             }
         }
     }
-
+    /**
+     * Mostra duas tabelas lado a lado com a situação das frotas.
+     * Nomes/estados em verde para ativos/restantes e em vermelho para afundados.
+     *
+     * @param minhas        embarcações do jogador
+     * @param doAdversario  embarcações do adversário
+     */
     public static void mostrarPainelEmbarcacoes(List<Embarcacao> minhas, List<Embarcacao> doAdversario) {
         List<String[]> esquerda = new ArrayList<>();
         esquerda.add(new String[]{Ansi.bold("Minhas Embarcações"), Ansi.bold("Status")});
