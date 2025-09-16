@@ -10,8 +10,7 @@ public class Jogo {
     private Jogador jogadorAtual;
 
     public Jogo(Dificuldade dificuldade) {
-        // Por enquanto, o jogador humano sempre começa.
-        // Podemos adicionar lógica para sortear quem começa depois.
+        // O jogador humano sempre começa.
         this.jogador1 = new JogadorHumano("Jogador 1", dificuldade);
         this.jogador2 = new JogadorComputador(dificuldade);
         this.jogadorAtual = jogador1;
